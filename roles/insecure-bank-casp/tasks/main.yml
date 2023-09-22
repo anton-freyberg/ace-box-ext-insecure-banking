@@ -1,4 +1,10 @@
 ---
+
+- name: Add bitnami chart repo
+  kubernetes.core.helm_repository:
+    name: bitnami
+    repo_url: "https://charts.bitnami.com/bitnami"
+
 - name: Install apt packages
   become: true
   become_user: root
@@ -14,12 +20,22 @@
     - net-tools
     - maven
 
+- name: Ensure install-java.sh is executable
+  file:
+    path: "{{ role_path }}/files/repo/setup/install-java.sh"
+    mode: '0755'
+
 - name: Install specific Java version 
   shell: 
     cmd: "./install-java.sh"
     chdir: "{{ role_path }}/files/repo/setup"
   become: true
   become_user: root
+
+- name: Ensure /auditd-setup.sh executable
+  file:
+    path: "{{ role_path }}/files/repo/setup/auditd-setup.sh"
+    mode: '0755'
 
 - name: Configure auditd
   shell: 
@@ -39,6 +55,11 @@
     path: "{{ role_path }}/files"
     state: directory
 
+- name: Ensure run_all.sh is executable
+  file:
+    path: "{{ role_path }}/files/repo/run_all.sh"
+    mode: '0755'
+
 - name: Run InsecureBank installer
   shell: 
     cmd: "./run_all.sh"
@@ -53,5 +74,3 @@
   retries: 60
   delay: 5
   until: result.status == 200
-
-  
