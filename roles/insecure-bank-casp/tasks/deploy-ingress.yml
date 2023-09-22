@@ -1,0 +1,17 @@
+- include_role:
+    name: local-ingress
+    #tasks_from: create-local-ingress
+  vars:
+    local_ingress_port: "{{ insecurebank_port }}"
+    local_ingress_domain: "{{ insecurebank_domain }}"
+    local_ingress_namespace: "{{ insecurebank_namespace }}"
+    local_ingress_name: "insecurebank-web"
+
+- include_role:
+    name: local-ingress
+    #tasks_from: create-local-ingress
+  vars:
+    local_ingress_port: "{{ insecurebank_port_backdoor }}"
+    local_ingress_domain: "{{ insecurebank_domain_backdoor }}"
+    local_ingress_namespace: "{{ insecurebank_namespace }}"
+    local_ingress_name: "insecurebank-backdoor"

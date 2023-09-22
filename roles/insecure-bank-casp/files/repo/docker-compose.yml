@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+
+  insecure-bank:
+    image: insecure-bank-log4shell
+    ports:
+      - 8080:8080
+      - 1337:1337
+    networks:
+      - insecure-bank-net
+
+  insecure-bank-loadgen:
+    image: insecure-bank-loadgen
+    environment:
+      - INSECURE_BANK_ENDPOINT=http://insecure-bank:8080
+      - LOADGEN_UTC_START_HOUR=22
+      - LOADGEN_UTC_END_HOUR=7
+    networks:
+      - insecure-bank-net
+
+networks:
+  insecure-bank-net: {}

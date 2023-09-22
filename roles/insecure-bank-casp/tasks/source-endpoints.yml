@@ -1,0 +1,4 @@
+---
+- name: Set facts
+  set_fact:
+    insecurebank_endpoint: "http://{{ insecurebank_domain }}"

@@ -1,0 +1,4 @@
+apiVersion: v1
+description: Insecure Bank Ingress for ACE demo
+name: insecure-bank-ingress
+version: 1

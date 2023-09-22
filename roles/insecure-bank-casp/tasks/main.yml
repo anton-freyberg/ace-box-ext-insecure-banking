@@ -1,0 +1,57 @@
+---
+- name: Install apt packages
+  become: true
+  become_user: root
+  apt:
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+    - apt-transport-https
+    - software-properties-common
+    - jq
+    - net-tools
+    - maven
+
+- name: Install specific Java version 
+  shell: 
+    cmd: "./install-java.sh"
+    chdir: "{{ role_path }}/files/repo/setup"
+  become: true
+  become_user: root
+
+- name: Configure auditd
+  shell: 
+    cmd: "./auditd-setup.sh"
+    chdir: "{{ role_path }}/files/repo/setup"
+  become: true
+  become_user: root
+
+- name: Add host as evil host
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    line: 127.0.0.1 evil-server.net
+  become: true
+  become_user: root
+
+- file:
+    path: "{{ role_path }}/files"
+    state: directory
+
+- name: Run InsecureBank installer
+  shell: 
+    cmd: "./run_all.sh"
+    chdir: "{{ role_path }}/files/repo"
+
+- name: Wait for Insecure Bank to be up
+  uri:
+    url: "http://localhost:{{ insecurebank_port }}/insecure-bank"
+    status_code: 200
+    validate_certs: no
+  register: result
+  retries: 60
+  delay: 5
+  until: result.status == 200
+
+  

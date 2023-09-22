@@ -1,0 +1,31 @@
+---
+- include_role:
+    name: "microk8s"
+
+- include_role:
+    name: "dt-oneagent-classic"
+
+- include_role:
+    name: "insecure-bank-casp"
+
+- include_role:
+    name: insecure-bank-casp
+    tasks_from: deploy-ingress
+
+- include_role:
+    name: insecure-bank-casp
+    tasks_from: source-endpoints
+    
+- include_role:
+    name: app-falco
+
+# Include use case specific Dahboard values
+- set_fact:
+    include_dashboard_value_file: "{{ role_path }}/templates/insecure-banking-dashboard.yml.j2"
+
+- include_role:
+    name: dashboard
+    tasks_from: template-values-file
+
+- include_role:
+    name: dashboard

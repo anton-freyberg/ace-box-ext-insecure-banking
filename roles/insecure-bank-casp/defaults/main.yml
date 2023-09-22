@@ -1,0 +1,6 @@
+---
+insecurebank_port: 8080
+insecurebank_domain: "insecure-bank.{{ ingress_domain }}"
+insecurebank_port_backdoor: 1337
+insecurebank_domain_backdoor: "backdoor.{{ ingress_domain }}"
+insecurebank_namespace: "insecure-bank"

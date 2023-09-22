@@ -1,0 +1,34 @@
+FROM debian:stable-slim
+
+# upgrade and install necessary dependencies: python, wget & maven
+RUN apt update && apt upgrade -y && apt install -y --no-install-recommends python3 wget maven net-tools procps && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# copy the application sources to /root, build them and start app once for all dependencies to be downloaded
+WORKDIR /root
+COPY src /root/src
+COPY pom.xml /root
+RUN mvn clean package cargo:start -DskipTests
+
+# copy LDAP server sources to /root and build them
+WORKDIR /root/marshalsec
+COPY marshalsec /root/marshalsec
+RUN mvn clean package -DskipTests
+
+# download, install and configure OpenJDK 8u181, which is vulnerable for Log4Shell exploitation
+RUN wget https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u181-b13/OpenJDK8U-jdk_x64_linux_hotspot_8u181b13.tar.gz && \
+	tar xvf OpenJDK8U-jdk_x64_linux_hotspot_8u181b13.tar.gz -C /usr/lib/jvm && \
+	rm OpenJDK8U-jdk_x64_linux_hotspot_8u181b13.tar.gz
+RUN update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk8u181-b13/bin/java 1000 && \
+	update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk8u181-b13/bin/javac 1000 && \
+	update-alternatives --set java /usr/lib/jvm/jdk8u181-b13/bin/java && \
+	update-alternatives --set javac /usr/lib/jvm/jdk8u181-b13/bin/javac
+
+# copy the exploits to /root and build them
+WORKDIR /root/exploits
+COPY exploits /root/exploits
+RUN javac -cp javax.servlet-api-3.1.0.jar *.java
+
+# execute run_all.sh script to run LDAP servers, HTTP server and app itself
+WORKDIR /root
+COPY run_all.sh /root
+CMD ./run_all.sh

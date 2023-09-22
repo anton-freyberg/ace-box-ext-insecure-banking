@@ -1,0 +1,9 @@
+FROM python:3-slim
+
+# copy the load generator sources to /root/loadgen and download dependencies
+COPY loadgen /root/loadgen
+WORKDIR /root/loadgen
+RUN ./setup.sh
+
+# execute run.sh script to start load generator and send requests to endpoint as stored in env var INSECURE_BANK_ENDPOINT
+CMD ./run.sh --endpoint $INSECURE_BANK_ENDPOINT --utc_start_hour $LOADGEN_UTC_START_HOUR --utc_end_hour $LOADGEN_UTC_END_HOUR
